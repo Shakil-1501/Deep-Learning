@@ -77,7 +77,7 @@ for file in os.listdir('own/'):
     outputs = predict(model, inputs)
 
     # Display results
-    viz = display_images(outputs.copy(),inputs.copy())
+    viz = display_images(outputs.copy())
     plt.figure(figsize=(20,10))
     plt.imshow(viz)
     #plt.show()
