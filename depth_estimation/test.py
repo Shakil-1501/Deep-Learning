@@ -80,8 +80,9 @@ for file in os.listdir('own/'):
     viz = display_images(outputs.copy())
     #plt.figure(figsize=(20,10))
     plt.imshow(viz)
+    plt.axis('off')
     #plt.show()
-    plt.savefig(f'{file}',bbox_inches = 'tight')
+    plt.savefig(f'{file}',bbox_inches = 'tight',pad_inches = 0)
 
 
 
