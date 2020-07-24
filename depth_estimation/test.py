@@ -69,9 +69,12 @@ def load_images_with_resize(image_files):
 
 
 # Input images
-for file in os.listdir('own/'):
-    inputs = load_images_with_resize( f'own/{file}' )
-    print('\nLoaded ({0}) images of size {1}.'.format(inputs.shape[0], inputs.shape[1:]))
+i=0
+for file in os.listdir('fg_bg26c/'):
+    inputs = load_images_with_resize( f'fg_bg26c/{file}' )
+    #print('\nLoaded ({0}) images of size {1}.'.format(inputs.shape[0], inputs.shape[1:]))
+    i = i+1
+    print('Image ',i)                                 
     
     # Compute results
     outputs = predict(model, inputs)
@@ -81,8 +84,10 @@ for file in os.listdir('own/'):
     #plt.figure(figsize=(20,10))
     plt.imshow(viz)
     plt.axis('off')
+    
     #plt.show()
     plt.savefig(f'{file}',bbox_inches = 'tight',pad_inches = 0)
+    plt.close()
 
 
 
