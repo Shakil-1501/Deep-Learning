@@ -86,7 +86,7 @@ for file in os.listdir('fg_bg26c/'):
     plt.axis('off')
     
     #plt.show()
-    plt.savefig(f'{file}',bbox_inches = 'tight',pad_inches = 0)
+    plt.savefig(f'outputsimg/{file}',bbox_inches = 'tight',pad_inches = 0)
     plt.close()
 
 
