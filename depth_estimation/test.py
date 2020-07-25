@@ -70,8 +70,8 @@ def load_images_with_resize(image_files):
 
 # Input images
 i=0
-for file in os.listdir('fg_bg24c/'):
-    inputs = load_images_with_resize( f'fg_bg24c/{file}' )
+for file in os.listdir('fg_bg21c/'):
+    inputs = load_images_with_resize( f'fg_bg21c/{file}' )
     #print('\nLoaded ({0}) images of size {1}.'.format(inputs.shape[0], inputs.shape[1:]))
     i = i+1
     print('Image ',i)                                 
