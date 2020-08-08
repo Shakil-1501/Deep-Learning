@@ -17,8 +17,10 @@ def nyu_resize(img, resolution=480, padding=6):
 def get_nyu_data(batch_size, nyu_data_zipfile='nyu_data.zip'):
     data = extract_zip(nyu_data_zipfile)
 
-    nyu2_train = list((row.split(',') for row in (data['data/nyu2_train.csv']).decode("utf-8").split('\n') if len(row) > 0))
-    nyu2_test = list((row.split(',') for row in (data['data/nyu2_test.csv']).decode("utf-8").split('\n') if len(row) > 0))
+    nyu2_train = list((row.strip().split(',') for row in (data['data/nyu2_train.csv']).decode("utf-8").strip().split('\n') if len(row) > 0))
+    nyu2_test = list((row.strip().split(',') for row in (data['data/nyu2_test.csv']).decode("utf-8").strip().split('\n') if len(row) > 0))
+    print('Data.py Line 25 nyu2_train',nyu2_train)
+    print('Data.py Line 26 nyu2_train',nyu2_test)
 
     shape_rgb = (batch_size, 480, 640, 3)
     shape_depth = (batch_size, 240, 320, 1)
@@ -28,12 +30,15 @@ def get_nyu_data(batch_size, nyu_data_zipfile='nyu_data.zip'):
         nyu2_train = nyu2_train[:10]
         nyu2_test = nyu2_test[:10]
 
+    print('Data.py Line36 ',shape_rgb)
+    print('Data.py Line37 ',shape_depth)
     return data, nyu2_train, nyu2_test, shape_rgb, shape_depth
 
 def get_nyu_train_test_data(batch_size):
     data, nyu2_train, nyu2_test, shape_rgb, shape_depth = get_nyu_data(batch_size)
 
     train_generator = NYU_BasicAugmentRGBSequence(data, nyu2_train, batch_size=batch_size, shape_rgb=shape_rgb, shape_depth=shape_depth)
+    print('Train Generator Done')
     test_generator = NYU_BasicRGBSequence(data, nyu2_test, batch_size=batch_size, shape_rgb=shape_rgb, shape_depth=shape_depth)
 
     return train_generator, test_generator
@@ -58,6 +63,7 @@ class NYU_BasicAugmentRGBSequence(Sequence):
         return int(np.ceil(self.N / float(self.batch_size)))
 
     def __getitem__(self, idx, is_apply_policy=True):
+        #print('IDX:',idx)
         batch_x, batch_y = np.zeros( self.shape_rgb ), np.zeros( self.shape_depth )
 
         # Augmentation of RGB images
@@ -66,8 +72,8 @@ class NYU_BasicAugmentRGBSequence(Sequence):
 
             sample = self.dataset[index]
 
-            x = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[0]]) )).reshape(480,640,3)/255,0,1)
-            y = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[1]]) )).reshape(480,640,1)/255*self.maxDepth,0,self.maxDepth)
+            x = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[0]]) )).reshape(224,224,3)/255,0,1)
+            y = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[1]]) ).convert('L')).reshape(224,224,1)/255*self.maxDepth,0,self.maxDepth)
             y = DepthNorm(y, maxDepth=self.maxDepth)
 
             batch_x[i] = nyu_resize(x, 480)
@@ -96,13 +102,14 @@ class NYU_BasicRGBSequence(Sequence):
 
     def __getitem__(self, idx):
         batch_x, batch_y = np.zeros( self.shape_rgb ), np.zeros( self.shape_depth )
+        #print('I was called')
         for i in range(self.batch_size):            
             index = min((idx * self.batch_size) + i, self.N-1)
 
             sample = self.dataset[index]
 
-            x = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[0]]))).reshape(480,640,3)/255,0,1)
-            y = np.asarray(Image.open(BytesIO(self.data[sample[1]])), dtype=np.float32).reshape(480,640,1).copy().astype(float) / 10.0
+            x = np.clip(np.asarray(Image.open( BytesIO(self.data[sample[0]]))).reshape(224,224,3)/255,0,1)
+            y = np.asarray(Image.open(BytesIO(self.data[sample[1]])).convert('L'), dtype=np.float32).reshape(224,224,1).copy().astype(float) / 10.0
             y = DepthNorm(y, maxDepth=self.maxDepth)
 
             batch_x[i] = nyu_resize(x, 480)
